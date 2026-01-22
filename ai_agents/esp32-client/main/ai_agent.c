@@ -78,7 +78,8 @@ static int _parse_resp_data(const char *resp_data, const int data_len)
     // make sure it is string and get value
     if (cJSON_IsString(app_id) && (app_id->valuestring != NULL)) {
         printf("appId: %s\n", app_id->valuestring);
-        memcpy(g_app.app_id, app_id->valuestring, RTC_APP_ID_LEN);
+       // memcpy(g_app.app_id, app_id->valuestring, RTC_APP_ID_LEN);
+        snprintf(g_app.app_id, RTC_APP_ID_LEN, "%s", app_id->valuestring);
     }
 
     cJSON *token = cJSON_GetObjectItemCaseSensitive(data, "token");
@@ -262,24 +263,24 @@ static char *_build_start_json(void)
     cJSON_AddNumberToObject(root, "user_uid", AI_AGENT_USER_ID);
     cJSON_AddItemToObject(root, "graph_name", cJSON_CreateString(GRAPH_NAME));
 
-    cJSON *properties = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "properties", properties);   //properties object
+    // cJSON *properties = cJSON_CreateObject();
+    // cJSON_AddItemToObject(root, "properties", properties);   //properties object
 
-    cJSON *agora_rtc = cJSON_CreateObject();
-    cJSON_AddItemToObject(properties, "agora_rtc", agora_rtc);   //agora rtc object
-    cJSON_AddItemToObject(agora_rtc, "sdk_params", cJSON_CreateString(TENAI_AUDIO_CODEC)); 
+    // cJSON *agora_rtc = cJSON_CreateObject();
+    // cJSON_AddItemToObject(properties, "agora_rtc", agora_rtc);   //agora rtc object
+    // cJSON_AddItemToObject(agora_rtc, "sdk_params", cJSON_CreateString(TENAI_AUDIO_CODEC)); 
 
-    cJSON *custom_llm = cJSON_CreateObject();
-    cJSON_AddItemToObject(properties, "v2v", custom_llm);   //v2v object
+//     cJSON *custom_llm = cJSON_CreateObject();
+//     cJSON_AddItemToObject(properties, "v2v", custom_llm);   //v2v object
 
-#if defined(CONFIG_GRAPH_OPENAI)
-    cJSON_AddItemToObject(custom_llm, "model", cJSON_CreateString(V2V_MODEL));
-    cJSON_AddItemToObject(custom_llm, "voice", cJSON_CreateString(VOICE));
-    cJSON_AddItemToObject(custom_llm, "language", cJSON_CreateString(LANGUAGE));
-#endif
+// #if defined(CONFIG_GRAPH_OPENAI)
+//     cJSON_AddItemToObject(custom_llm, "model", cJSON_CreateString(V2V_MODEL));
+//     cJSON_AddItemToObject(custom_llm, "voice", cJSON_CreateString(VOICE));
+//     cJSON_AddItemToObject(custom_llm, "language", cJSON_CreateString(LANGUAGE));
+// #endif
 
-    cJSON_AddItemToObject(custom_llm, "greeting", cJSON_CreateString(GREETING));
-    cJSON_AddItemToObject(custom_llm, "prompt", cJSON_CreateString(PROMPT));
+//     cJSON_AddItemToObject(custom_llm, "greeting", cJSON_CreateString(GREETING));
+//     cJSON_AddItemToObject(custom_llm, "prompt", cJSON_CreateString(PROMPT));
 
     json_ptr = cJSON_Print(root);
 

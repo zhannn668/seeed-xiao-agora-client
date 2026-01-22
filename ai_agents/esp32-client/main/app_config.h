@@ -2,11 +2,11 @@
 
 
 //LLM Agent Service
-#define TENAI_AGENT_URL       "http://<ip_address>:<port>"
+#define TENAI_AGENT_URL       "http://192.168.9.26:8080"
 
 // LLM Agent Graph, you can select openai or gemini 
 // #define CONFIG_GRAPH_OPENAI   /* openai, just only audio */
-#define CONFIG_GRAPH_GEMINI     /* gemini, for video and audio, but not support chinese language */
+#define CONFIG_GRAPH_OPENAI     /* gemini, for video and audio, but not support chinese language */
 
 /* greeting */
 #define GREETING               "Can I help You?"
@@ -14,7 +14,7 @@
 
 /* different settings for different agent graph */
 #if defined(CONFIG_GRAPH_OPENAI)
-#define GRAPH_NAME             "va_openai_v2v"
+#define GRAPH_NAME             "voice_assistant"
 
 #define V2V_MODEL              "gpt-realtime"
 #define LANGUAGE               "en-US"
@@ -28,7 +28,7 @@
 // LLM Agent Task Name
 #define AI_AGENT_NAME          "tenai0125-11"
 // LLM Agent Channel Name
-#define AI_AGENT_CHANNEL_NAME  "aiAgent_chn0124-11"
+#define AI_AGENT_CHANNEL_NAME  "test_channel_12345"
 // LLM User Id
 #define AI_AGENT_USER_ID        12345 // user id, for device
 
@@ -39,3 +39,5 @@
 #define CONFIG_USE_G711U_CODEC
 /* video process */
 // #define CONFIG_AUDIO_ONLY
+
+#define AGORA_APP_ID "550749b706214846a1a2eef3612a8cd3"

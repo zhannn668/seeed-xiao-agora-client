@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 
 #include <pthread.h>
 
@@ -155,6 +156,19 @@ static void audio_send_thread(void *arg)
     if (ret != CONFIG_PCM_DATA_LEN) {
       printf("read raw stream error, expect %d, but only %d\n", CONFIG_PCM_DATA_LEN, ret);
     }
+    // Debug: Check if audio data is all zeros (silence)
+    static int frame_count = 0;
+    if (frame_count++ % 50 == 0) {
+      // Check first 32 samples
+      int non_zero_count = 0;
+      int16_t *samples = (int16_t *)audio_pcm_buf;
+      for (int i = 0; i < 32 && i < CONFIG_PCM_DATA_LEN/2; i++) {
+        if (samples[i] != 0) non_zero_count++;
+      }
+      printf("Sending audio frame %d, size=%d bytes, non-zero samples: %d/32\n",
+             frame_count, CONFIG_PCM_DATA_LEN, non_zero_count);
+      }
+    
 
     send_rtc_audio_frame(audio_pcm_buf, CONFIG_PCM_DATA_LEN);
   }
@@ -178,9 +192,16 @@ int playback_stream_write(char *data, int len)
 
 void setup_audio(void)
 {
-  board_handle = audio_board_init();
-  audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_START);
-  audio_hal_set_volume(board_handle->audio_hal, 85);
+  // board_handle = audio_board_init();
+  // audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_START);
+  // audio_hal_set_volume(board_handle->audio_hal, 85);
+
+  // AIC3104 is initialized directly in llm_main.c, no need for audio_board_init()                                                
+  // board_handle = audio_board_init();                                                                                           
+  // audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_BOTH, AUDIO_HAL_CTRL_START);                              
+  // audio_hal_set_volume(board_handle->audio_hal, 85);                                                                           
+                                                                                                                                   
+  printf("setup_audio: using AIC3104 direct initialization\n");
 }
 
 int audio_start_proc(void)
@@ -196,13 +217,16 @@ int audio_start_proc(void)
 
 int audio_get_volume(void)
 {
-  int volume = 0;
-  audio_hal_get_volume(board_handle->audio_hal, &volume);
+  // int volume = 0;
+  // audio_hal_get_volume(board_handle->audio_hal, &volume);
 
-  return volume;
+  // return volume;
+
+  return 85;                                                                                                                      
+
 }
 
 void audio_set_volume(int volume)
 {
-  audio_hal_set_volume(board_handle->audio_hal, volume);
+  printf("audio_set_volume: volume=%d (AIC3104 volume control not yet implemented)\n", volume);                                   
 }

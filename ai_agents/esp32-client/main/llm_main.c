@@ -45,6 +45,9 @@
 #include "audio_proc.h"
 #include "common.h"
 #include "rtc_proc.h"
+#include "aic3104_ng.h"
+#include "xvf3800.h"
+// #include "pcal6416a.h"  // Not used - no PCAL6416A on this board
 
 #ifndef CONFIG_AUDIO_ONLY
 #include "video_proc.h"
@@ -52,11 +55,14 @@
 
 app_t g_app = {
   .b_call_session_started = false,
+ // .b_ai_agent_generated   = false,
   .b_ai_agent_generated   = false,
   .b_wifi_connected       = false,
   .b_ai_agent_joined      = false,
-  .app_id                 = { 0 },
-  .token                  = { 0 },
+ // .app_id                 = { 0 }, LILI
+  .app_id                 = "550749b706214846a1a2eef3612a8cd3",
+ // .token                  = { 0 },
+   .token                  = "",
 };
 
 static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -104,6 +110,9 @@ static void setup_wifi(void)
   esp_wifi_set_ps(WIFI_PS_NONE);
 }
 
+// Button callback - DISABLED for ReSpeaker XVF3800 (would cause crash)
+// This callback was designed for ESP32-S3-Korvo-2 V3 board
+/*
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
 {
   switch ((int)evt->data) {
@@ -159,30 +168,34 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
   }
   return ESP_OK;
 }
+*/
 
 
 static void setup_key_button(void)
 {
-  // init the peripherals set and peripherls
-  esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
-  periph_cfg.extern_stack = true;
-  esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
+  printf("~~~~~Initializing XVF3800 Button Handler~~~~\r\n");
 
-  // setup the input key service
-  audio_board_key_init(set);
+  // Initialize XVF3800 device (I2C already configured by aic3104_ng_init)
+  // XVF3800 uses the same I2C bus (I2C_NUM_0, GPIO5/6)
+  static xvf3800_handle_t xvf3800 = {0};
 
-  input_key_service_info_t input_info[] = INPUT_KEY_DEFAULT_INFO();
-  input_key_service_cfg_t key_serv_info = INPUT_KEY_SERVICE_DEFAULT_CONFIG();
-  key_serv_info.based_cfg.task_stack   = 8 * 1024;
-  key_serv_info.based_cfg.extern_stack = false;
-  key_serv_info.handle = set;
-
-  periph_service_handle_t input_key_handle = input_key_service_create(&key_serv_info);
-  if (!input_key_handle) {
-    return;
+  esp_err_t ret = xvf3800_init(&xvf3800, I2C_NUM_0);
+  if (ret != ESP_OK) {
+    printf("WARNING: XVF3800 init returned error: %s\n", esp_err_to_name(ret));
+    printf("This may be normal - continuing with button monitoring...\n");
   }
-  input_key_service_add_key(input_key_handle, input_info, INPUT_KEY_NUM);
-  periph_service_set_callback(input_key_handle, input_key_service_cb, NULL);
+
+  // Start button monitoring task
+  ret = xvf3800_start_button_monitor(&xvf3800);
+  if (ret != ESP_OK) {
+    printf("ERROR: Failed to start XVF3800 button monitor\n");
+  } else {
+    printf("========================================\n");
+    printf("Button controls:\n");
+    printf("  SET button  → Start AI Agent\n");
+    printf("  MUTE button → Stop AI Agent\n");
+    printf("========================================\n");
+  }
 }
 
 int app_main(void)
@@ -203,9 +216,34 @@ int app_main(void)
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 
+  // Initialize AIC3104 Codec for ReSpeaker XVF3800
+  printf("~~~~~Initializing AIC3104 Codec~~~~\r\n");
+  aic3104_ng_t aic = {0};
+
+  // Don't use ESP_ERROR_CHECK - allow program to continue if AIC3104 init fails
+  esp_err_t aic_init_ret = aic3104_ng_init(&aic, I2C_NUM_0, GPIO_NUM_5, GPIO_NUM_6, 100000);
+  if (aic_init_ret != ESP_OK) {
+    printf("WARNING: No I2C devices found - AIC3104 not available\n");
+    printf("Audio codec functionality will be limited\n");
+  } else {
+    uint8_t page = 0xFF;
+    esp_err_t probe_ret = aic3104_ng_probe(&aic, &page);
+    if (probe_ret == ESP_OK) {
+      printf("AIC3104 detected, page register = 0x%02X\n", page);
+      esp_err_t setup_ret = aic3104_ng_setup_default(&aic);
+      if (setup_ret == ESP_OK) {
+        printf("~~~~~AIC3104 Codec initialized successfully~~~~\r\n");
+      } else {
+        printf("WARNING: AIC3104 setup failed: %s\n", esp_err_to_name(setup_ret));
+      }
+    } else {
+      printf("WARNING: AIC3104 probe failed - codec not responding\n");
+    }
+  }
+
   ai_agent_generate();
 
-  // init and start key button
+  // Initialize XVF3800 button handler for ReSpeaker
   setup_key_button();
 
   //setup and start audio
@@ -227,10 +265,16 @@ int app_main(void)
   printf("~~~~~agora_rtc_join_channel success~~~~\r\n");
 
 #ifndef CONFIG_AUDIO_ONLY
-    start_video_proc();
+  //  start_video_proc();
 #endif
 
-  printf("Agora: Press [SET] key to join the Ai Agent ...\n");
+  // Auto-start AI agent is DISABLED - use button to start manually
+  // printf("~~~~~Auto-starting Ai Agent~~~~\r\n");
+  // ai_agent_start();
+  // g_app.b_ai_agent_joined = true;
+  // printf("~~~~~Ai Agent started successfully~~~~\r\n");
+
+  printf("Agora: Press [SET] button on ReSpeaker to start the AI Agent ...\n");
 
   while (1) {
     // audio_sys_get_real_time_stats();
