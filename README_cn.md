@@ -2,7 +2,7 @@
 
 *简体中文| [English](README.md)*
 
-本仓库演示如何使用 **Seeed Studio XIAO ESP32-S3** 作为端侧语音设备，通过 **Agora** 实现实时语音链路，并对接 **AI Agent 服务端** 完成语音对话闭环。
+本仓库演示如何使用 **Seeed Studio reSpeaker XVF3800 (XIAO ESP32-S3)** 作为端侧语音设备，通过 **Agora** 实现实时语音链路，并对接 **AI Agent 服务端** 完成语音对话闭环。
 
 > 重点内容在 `ai_agents/`：
 > - **端侧（ESP32）**：[`ai_agents/esp32-client`](./ai_agents/esp32-client)
