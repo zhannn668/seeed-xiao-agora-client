@@ -1,6 +1,6 @@
 # Agora ESP32 Large-Model Intelligent Conversation
 
-*Simplified Chinese | [English](README.md)*
+*[简体中文](README.cn.md) | English*
 
 ## Example Overview
 
@@ -41,34 +41,34 @@ This example demonstrates how to use the Seeed Studio XIAO ESP32S3 to simulate a
 
 ## Directory / Files at a Glance
 
-- `llm_main.c`  
+- `llm_main.c`
   Program entry `app_main()`: WiFi → AIC3104 init → `ai_agent_generate()` → create RTC → prompt button to start Agent → periodic ping + print memory.
 
-- `app_config.h`  
+- `app_config.h`
   Business configuration (TEN AI Agent service URL, Graph, Channel, UID, AppID, etc.).
 
-- `common.h`  
+- `common.h`
   Global state `g_app`, audio codec macro selection (G711U/G722), and parameters such as sample rate/frame length.
 
-- `ai_agent.c / ai_agent.h`  
+- `ai_agent.c / ai_agent.h`
   HTTP client: requests TEN AI Agent service (`token/generate`, `start`, `stop`, `ping`), parses responses and writes into `g_app.app_id / g_app.token`.
 
-- `rtc_proc.c / rtc_proc.h`  
+- `rtc_proc.c / rtc_proc.h`
   Agora RTC wrapper: join channel, event callbacks, send audio frames `send_rtc_audio_frame()`, receive mixed audio and play via `playback_stream_write()`.
 
-- `audio_proc.c / audio_proc.h`  
-  ESP-ADF audio pipeline: I2S recording → AEC (`algo_stream`) → raw → send to RTC; downlink audio writes to raw → I2S playback.  
+- `audio_proc.c / audio_proc.h`
+  ESP-ADF audio pipeline: I2S recording → AEC (`algo_stream`) → raw → send to RTC; downlink audio writes to raw → I2S playback.
   Note: `audio_set_volume()` is currently a placeholder print (AIC3104 volume register control not implemented).
 
-- `aic3104_ng.c / aic3104_ng.h`  
+- `aic3104_ng.c / aic3104_ng.h`
   Minimal AIC3104 Codec I2C driver (probe / write registers / default initialization).
 
-- `xvf3800.c / xvf3800.h`  
+- `xvf3800.c / xvf3800.h`
   XVF3800 (XMOS) I2C control and key polling task:
   - SET → `ai_agent_start()`
   - MUTE → `ai_agent_stop()`
 
-- `video_proc.c / video_proc.h` (kept but disabled by default)  
+- `video_proc.c / video_proc.h` (kept but disabled by default)
   `video_proc.c` is commented out in CMakeLists, and `start_video_proc()` is commented out in `llm_main.c`.
 
 ---
@@ -138,22 +138,22 @@ $ idf.py menuconfig  --> Agora Demo for ESP32 --> (configure WIFI SSID and Passw
 $ idf.py build
 ```
 
-Configure FreeRTOS forward compatibility:  
+Configure FreeRTOS forward compatibility:
 In menuconfig: Component config --> FreeRTOS --> Kernel, enable `configENABLE_BACKWARD_COMPATIBILITY`.
 
 ### Windows
 
 #### Default IDF Branch
 
-Download IDF and choose the v5.2.3 offline version. This example uses IDF tag v[5.2.3] by default:  
+Download IDF and choose the v5.2.3 offline version. This example uses IDF tag v[5.2.3] by default:
 https://docs.espressif.com/projects/esp-idf/zh_CN/v5.2.3/esp32/get-started/windows-setup.html
 
-Download ADF; the ADF directory is under Espressif/frameworks. To support ADF v2.7 tag (commit id: 9cf556de500019bb79f3bb84c821fda37668c052):  
+Download ADF; the ADF directory is under Espressif/frameworks. To support ADF v2.7 tag (commit id: 9cf556de500019bb79f3bb84c821fda37668c052):
 https://docs.espressif.com/projects/esp-adf/zh_CN/latest/get-started/index.html#step-2-get-esp-adf
 
 #### Apply the IDF Patch
 
-Method 1: Add `ADF_PATH` to system environment variables:  
+Method 1: Add `ADF_PATH` to system environment variables:
 E:\esp32s3\Espressif\frameworks\esp-adf
 
 Method 2: Add `ADF_PATH` in the command line:
@@ -176,7 +176,7 @@ git apply $ADF_PATH/idf_patches/idf_v5.2_freertos.patch
 
 This is the **most critical** step! You need to modify the Board-layer configuration in the ESP-ADF framework.
 
-**File location (example)**  
+**File location (example)**
 Depending on your own ESP-ADF directory:
 
 **Windows**:
@@ -288,7 +288,7 @@ $ idf.py menuconfig  --> Agora Demo for ESP32 --> (configure WIFI SSID and Passw
 $ idf.py build
 ```
 
-Configure FreeRTOS forward compatibility:  
+Configure FreeRTOS forward compatibility:
 In menuconfig: Component config --> FreeRTOS --> Kernel, enable `configENABLE_BACKWARD_COMPATIBILITY`.
 
 ---
@@ -456,10 +456,10 @@ This adaptation guide is based on the MIT license of the TEN Framework.
 
 ---
 
-**Document Version**: 1.0  
-**Creation Date**: 2025-01-05  
-**Applicable Hardware**: ReSpeaker XVF3800 + ESP32-S3  
-**Applicable Software**: TEN Framework esp32-client + ESP-IDF 5.2.3 + ESP-ADF 2.7  
+**Document Version**: 1.0
+**Creation Date**: 2025-01-05
+**Applicable Hardware**: ReSpeaker XVF3800 + ESP32-S3
+**Applicable Software**: TEN Framework esp32-client + ESP-IDF 5.2.3 + ESP-ADF 2.7
 
 ## About Agora
 
