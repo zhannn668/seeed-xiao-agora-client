@@ -1,106 +1,108 @@
-# Seeed Studio XIAO ESP32-S3 Agora 语音对话工程（AI Agent Demo）
+# Seeed Studio XIAO ESP32-S3 Agora Voice Conversation Project (AI Agent Demo)
 
-本仓库演示如何使用 **Seeed Studio XIAO ESP32-S3** 作为端侧语音设备，通过 **Agora** 实现实时语音链路，并对接 **AI Agent 服务端** 完成语音对话闭环。
+*[简体中文](README.cn.md) | English*
 
-> 重点内容在 `ai_agents/`：
-> - **端侧（ESP32）**：[`ai_agents/esp32-client`](./ai_agents/esp32-client)
-> - **服务端（AI Agent Server）**：[`ai_agents/server`](./ai_agents/server)
+This repository demonstrates how to use **Seeed Studio XIAO ESP32-S3** as an edge voice device, build a real-time voice link via **Agora**, and connect to an **AI Agent backend service** to complete a full voice conversation loop.
+
+> The key content is in `ai_agents/`:
+> - **Edge (ESP32)**: [`ai_agents/esp32-client`](./ai_agents/esp32-client)
+> - **Backend (AI Agent Server)**: [`ai_agents/server`](./ai_agents/server)
 
 ---
 
-## 目录导览（你只需要看这两个）
+## Directory Guide (You only need to read these two)
 
 ```text
 ai_agents/
-  esp32-client/   # XIAO ESP32-S3 端侧：采集/播放音频 + Agora 连接 + 对话交互
-  server/         # 服务端：AI Agent 编排/LLM/ASR/TTS 等（与端侧联动）
+  esp32-client/   # XIAO ESP32-S3 edge side: audio capture/playback + Agora connection + conversation interaction
+  server/         # Backend: AI Agent orchestration / LLM / ASR / TTS, etc. (works together with the edge side)
 ```
 
 ---
 
-## 系统架构（简述）
+## System Architecture (Brief)
 
-1. XIAO ESP32-S3 连接网络并加入 Agora 房间
-2. 端侧采集麦克风音频并推流（或上行数据）
-3. `ai_agents/server` 接收音频/事件，完成 ASR → LLM → TTS（或其它 Agent 流程）
-4. 服务端将回复音频/指令回传，端侧播放，实现实时语音对话
+1. The XIAO ESP32-S3 connects to the network and joins an Agora room
+2. The edge side captures microphone audio and publishes it (or uploads data)
+3. `ai_agents/server` receives audio/events and performs ASR → LLM → TTS (or other Agent flows)
+4. The backend sends the response audio/commands back, and the edge side plays it, enabling real-time voice conversation
 
 ---
 
-## 快速开始（推荐流程）
+## Quick Start (Recommended Workflow)
 
-### 0. 准备条件
-- 硬件：Seeed Studio XIAO ESP32-S3（以及麦克风/喇叭或对应扩展板）
-- 网络：可访问 Agora 服务
-- 软件：根据子目录要求安装（见下方两个链接）
+### 0. Prerequisites
+- Hardware: Seeed Studio XIAO ESP32-S3 (plus mic/speaker or the corresponding expansion board)
+- Network: Able to access Agora services
+- Software: Install according to the requirements in the subdirectories (see the two links below)
 
-### 1) 启动服务端（先跑 server）
-进入：[`ai_agents/server`](./ai_agents/server)
+### 1) Start the backend first (run server first)
+Go to: [`ai_agents/server`](./ai_agents/server)
 
-按照该目录 README/文档：
-- 配置环境变量（Agora / LLM / ASR / TTS 等）
-- 启动服务
+Follow the README/docs in that directory:
+- Configure environment variables (Agora / LLM / ASR / TTS, etc.)
+- Start the service
 
-> 完成后你应该能看到服务端启动成功，并等待端侧连接或房间事件。
+> After that, you should see the backend service start successfully and wait for edge connections or room events.
 
-#### Windows（推荐 Docker Desktop）步骤（包含 Docker 简单安装配置）
+#### Windows (Docker Desktop recommended) Steps (including a simple Docker installation/config)
 
-> 适用：Windows 10/11（建议开启 WSL2）。以下命令建议在 **PowerShell** 或 **Windows Terminal** 中执行。
+> Applies to: Windows 10/11 (WSL2 is recommended). The following commands are recommended to run in **PowerShell** or **Windows Terminal**.
 
-**A. 安装 / 配置 Docker Desktop（一次性）**
-1. 下载并安装 Docker Desktop：
+**A. Install / Configure Docker Desktop (one-time)**
+1. Download and install Docker Desktop:
    https://www.docker.com/products/docker-desktop/
-2. 安装过程中选择/启用 **Use WSL 2 instead of Hyper-V**（若有该选项）。
-3. 安装完成后打开 Docker Desktop，等待右下角提示 **Docker is running**。
-4.（可选但推荐）在 Docker Desktop：`Settings -> Resources -> WSL Integration`
-   勾选你常用的 WSL 发行版（如 Ubuntu）。
+2. During installation, select/enable **Use WSL 2 instead of Hyper-V** (if available).
+3. After installation, open Docker Desktop and wait until the tray shows **Docker is running**.
+4. (Optional but recommended) In Docker Desktop: `Settings -> Resources -> WSL Integration`
+   Enable your commonly used WSL distribution (e.g., Ubuntu).
 
-**B. 克隆代码并准备环境变量**
+**B. Clone the repo and prepare environment variables**
 ```bash
 git clone https://github.com/zhannn668/seeed-xiao-agora-client.git
 cd seeed-xiao-agora-client
 cd ai_agents
 ```
 
-将示例环境变量复制为 `.env`（二选一）：
+Copy the example environment variables to `.env` (choose one):
 
-- PowerShell：
+- PowerShell:
 ```powershell
 Copy-Item .env.example .env
 ```
 
-- 或 CMD：
+- Or CMD:
 ```cmd
 copy .env.example .env
 ```
 
-然后用编辑器打开 `.env`，填入你的密钥/配置（Agora / LLM / ASR / TTS 等）：
+Then open `.env` in an editor and fill in your keys/config (Agora / LLM / ASR / TTS, etc.):
 
-**如何获取 API Key：**
+**How to get API Keys:**
 
-**Agora：**
-1. 访问 https://console.agora.io/
-2. 注册免费账号
-3. 创建一个新项目（Project）
-4. 复制 App ID 与 App Certificate
+**Agora:**
+1. Visit https://console.agora.io/
+2. Register a free account
+3. Create a new project (Project)
+4. Copy the App ID and App Certificate
 
-**Deepgram：**
-1. 访问 https://console.deepgram.com/
-2. 注册免费账号
-3. 进入 API Keys 页面
-4. 创建新的 API Key
+**Deepgram:**
+1. Visit https://console.deepgram.com/
+2. Register a free account
+3. Go to the API Keys page
+4. Create a new API Key
 
-**OpenAI：**
-1. 访问 https://platform.openai.com/
-2. 注册并绑定支付方式
-3. 进入 API Keys 页面
-4. 创建新的 Secret Key
+**OpenAI:**
+1. Visit https://platform.openai.com/
+2. Register and add a payment method
+3. Go to the API Keys page
+4. Create a new Secret Key
 
-**ElevenLabs：**
-1. 访问 https://elevenlabs.io/
-2. 注册免费账号
-3. 进入 Profile → API Key
-4. 复制 API Key
+**ElevenLabs:**
+1. Visit https://elevenlabs.io/
+2. Register a free account
+3. Go to Profile → API Key
+4. Copy the API Key
 ```
 # Agora RTC Configuration (Required)
 AGORA_APP_ID=your_agora_app_id_here
@@ -118,9 +120,10 @@ OPENAI_PROXY_URL=  # Optional: leave empty if not using proxy
 ELEVENLABS_TTS_KEY=your_elevenlabs_api_key_here
 
 # Optional: Weather API (for weather tool functionality)
-WEATHERAPI_API_KEY=your_weather_api_key_here
+WEATHERAPI_API_KEY=your_weatherapi_api_key_here
 ```
-用编辑器打开ai_agents/agents/examples/voice-assistant/tenapp/property.json，根据你选择模型修改,可参考 https://docs.agora.io/en/conversational-ai/models/asr/overview：
+
+Open `ai_agents/agents/examples/voice-assistant/tenapp/property.json` in an editor, and modify it according to the model you choose. You can refer to: https://docs.agora.io/en/conversational-ai/models/asr/overview
 
 ```
 ......
@@ -161,64 +164,65 @@ WEATHERAPI_API_KEY=your_weather_api_key_here
 
 ......
 ```
-**C. 启动服务（Docker Compose）**
+
+**C. Start the service (Docker Compose)**
 ```bash
 docker compose up -d
 ```
 
-查看容器状态（可选）：
+Check container status (optional):
 ```bash
 docker compose ps
 ```
 
-**D. 进入容器并安装示例（Voice Assistant）**
-> 注意：容器名可能会随 compose 配置不同而变化。下面以 `ten_agent_dev` 为例；如不一致，请以 `docker compose ps` 输出为准。
+**D. Enter the container and install the sample (Voice Assistant)**
+> Note: The container name may vary depending on the compose configuration. The example below uses `ten_agent_dev`. If yours differs, use the output of `docker compose ps`.
 
 ```bash
 docker exec -it ten_agent_dev bash
 ```
 
-进入容器后执行：
+After entering the container, run:
 ```bash
 cd agents/examples/voice-assistant
 task install
 task run
 ```
 
-**E. 验证服务端已启动**
-- Docker Desktop 能看到相关容器 Running
-- 或用日志查看（可选）：
+**E. Verify the backend is running**
+- You can see the relevant containers are Running in Docker Desktop
+- Or view logs (optional):
 ```bash
 docker compose logs -f
 ```
 
-如需停止服务：
+To stop the service:
 ```bash
 docker compose down
 ```
 
-### 2) 烧录并运行 ESP32 端侧（再跑 esp32-client）
-进入：[`ai_agents/esp32-client`](./ai_agents/esp32-client)
+### 2) Flash and run the ESP32 edge side (then run esp32-client)
+Go to: [`ai_agents/esp32-client`](./ai_agents/esp32-client)
 
-按照该目录 README/文档：
-- 配置 Wi-Fi / Agora AppID/Token/Channel（或从服务端获取）
-- 编译并烧录到 XIAO ESP32-S3
-- 上电运行，观察串口日志
+Follow the README/docs in that directory:
+- Configure Wi-Fi / Agora AppID/Token/Channel (or obtain them from the backend)
+- Build and flash to the XIAO ESP32-S3
+- Power on and observe the serial logs
 
-### 3) 验证
-- 串口日志显示成功入会/连接
-- 对设备说话后，服务端能收到音频/识别文本
-- 设备能播放 AI 回复音频（或执行指令）
-
----
-
-## 常见问题（FAQ）
-- **Q：我应该先看哪个？**
-  A：先看 `ai_agents/server`（把链路跑起来），再看 `ai_agents/esp32-client`（端侧接入）。
-- **Q：我只想改端侧怎么办？**
-  A：直接进入 `ai_agents/esp32-client`，服务端按默认示例启动即可。
+### 3) Validation
+- Serial logs show the device successfully joined the channel / connected
+- After you speak to the device, the backend receives audio / recognized text
+- The device can play back the AI response audio (or execute commands)
 
 ---
 
-## 参考与更多
-- `ai_agents/` 之外的目录为上游框架/工具链/示例集合，本 Demo 以端侧 + 服务端联动为主。
+## FAQ
+- **Q: Which one should I read first?**
+  A: Read `ai_agents/server` first (get the whole pipeline running), then read `ai_agents/esp32-client` (connect the edge device).
+- **Q: What if I only want to modify the edge side?**
+  A: Go directly to `ai_agents/esp32-client`. The backend can be started with the default sample.
+
+---
+
+## References & More
+- Directories outside `ai_agents/` are upstream frameworks/toolchains/sample collections. This demo mainly focuses on the edge + backend linkage.
