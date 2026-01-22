@@ -1,6 +1,6 @@
 # Seeed Studio XIAO ESP32-S3 Agora Voice Conversation Project (AI Agent Demo)
 
-*[简体中文](README.cn.md) | English*
+*[简体中文](README_cn.md) | English*
 
 This repository demonstrates how to use **Seeed Studio reSpeaker XVF3800 (XIAO ESP32-S3)** as an edge voice device, build a real-time voice link via **Agora**, and connect to an **AI Agent backend service** to complete a full voice conversation loop.
 
