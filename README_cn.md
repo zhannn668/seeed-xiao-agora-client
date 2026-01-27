@@ -77,48 +77,6 @@ copy .env.example .env
 ```
 
 然后用编辑器打开 `.env`，填入你的密钥/配置（Agora / LLM / ASR / TTS 等）：
-```
-......
-# ------------------------------
-# RTC
-# ------------------------------
-
-# Agora App ID
-# Agora App Certificate(only required if enabled in the Agora Console)
-AGORA_APP_ID=
-AGORA_APP_CERTIFICATE=
-
-# ------------------------------
-# LLM
-# ------------------------------
-
-# Extension: openai_chatgpt
-# OpenAI API key
-OPENAI_API_BASE=https://api.openai.com/v1
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o
-OPENAI_PROXY_URL=
-# ------------------------------
-# STT
-# ------------------------------
-
-# Extension: deepgram_asr_python
-# Deepgram ASR key
-DEEPGRAM_API_KEY=
-
-# Azure ASR
-AZURE_ASR_API_KEY=
-AZURE_ASR_REGION=
-
-# ------------------------------
-# TTS
-# ------------------------------
-# Extension: cartesia_tts
-# Cartesia TTS key
-CARTESIA_API_KEY=
-......
-
-```
 
 **如何获取 API Key：**
 
