@@ -2,7 +2,7 @@
 
 *[简体中文](README_cn.md) | English*
 
-This repository demonstrates how to use **Seeed Studio reSpeaker XVF3800 (XIAO ESP32-S3)** as an edge voice device, build a real-time voice link via **Agora**, and connect to an **AI Agent backend service** to complete a full voice conversation loop.
+This repository demonstrates how to use [Seeed Studio reSpeaker XVF3800](https://wiki.seeedstudio.com/cn/respeaker_xvf3800_introduction/) as an edge voice device, build a real-time voice link via **Agora**, and connect to an **AI Agent backend service** to complete a full voice conversation loop.
 
 > The key content is in `ai_agents/`:
 > - **Edge (ESP32)**: [`ai_agents/esp32-client`](./ai_agents/esp32-client)
@@ -32,7 +32,7 @@ ai_agents/
 ## Quick Start (Recommended Workflow)
 
 ### 0. Prerequisites
-- Hardware: Seeed Studio XIAO ESP32-S3 (plus mic/speaker or the corresponding expansion board)
+- Hardware: [Seeed Studio reSpeaker XVF3800](https://wiki.seeedstudio.com/cn/respeaker_xvf3800_introduction/) (plus mic/speaker or the corresponding expansion board)
 - Network: Able to access Agora services
 - Software: Install according to the requirements in the subdirectories (see the two links below)
 
